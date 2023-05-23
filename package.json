@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/PesoPueblo/PROJET7-MonVieuxGrimoire/issues"
   },
-  "homepage": "https://github.com/PesoPueblo/PROJET7-MonVieuxGrimoire#readme"
+  "homepage": "https://github.com/PesoPueblo/PROJET7-MonVieuxGrimoire#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
