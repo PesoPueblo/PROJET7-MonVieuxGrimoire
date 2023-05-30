@@ -1,6 +1,9 @@
 //importation du model d'un livre
+const book = require('../models/book');
 const Book = require('../models/book');
 
+//importation du modèle de note
+const ratings = require ('../models/ratings');
 
 //créationet exportation d'un controlleur pour récupérer tous les livres
 exports.getAllBooks= (req,res,next)=>{
@@ -34,8 +37,22 @@ exports.getOneBook= (req,res,next)=>{
 
 //créationet exportation d'un controlleur pour modifier un livre
 exports.modifyOneBook= (req,res,next)=>{
-    Book.updateOne({_id: req.params.id}, {...req.body , _id: req.params.id})
-    .then(()=> res.status(200).json({message:'livre modifié'}))
+    const bookObject= req.file ? {
+        ...JSON.parse(req.body.book),
+        imageUrl: `${req.protocol}://${req.get('host')}/image/${req.file.filename}`,
+    } : {...req.body};
+
+    delete bookObject._userId;
+    Book.findOne({_id: req.params.id})
+    .then((book) => {
+        if (book.userId != req.auth.userId) {
+            res.status(401).json({message: 'Non-autorisé'})
+        } else (
+            Book.updateOne({_id: req.params.id}, {...bookObject, _id: req.params.id})
+            .then(()=> res.status(200).json({message:'Livre modifié !'}))
+            .catch(error=> res.status(401).json({error}))
+        )
+    })
     .catch(error=> res.status(400).json({error}));
 };
 
@@ -46,4 +63,47 @@ exports.deleteOneBook= (req,res,next)=>{
     .catch(error=> res.status(400).json({error}));
 };
 
+//créattion de l'ajout de note
+exports.addNewRate = (req,res,next)=>{
+    //création de la nouvelle note
+    const rate = new ratings ({
+        userId: req.auth.userId,
+        grade: req.body.rating,
+    }); 
+    //selectione de l'emplacement ou on rajoute la note 
+    Book.findOne({_id: req.params.id})
+    .then( book => {
+        //ajoute au tableau ratings du livre
+        book.ratings.push(rate);
+        //update de average note
+        let sumRate =0
+        for (let i = 0; i < book.ratings.length; i++) {
+            let rate = book.ratings[i].grade;
+            sumRate += rate;            
+        }
+        if (book.ratings.length > 0){
+            book.averageRating= sumRate / book.ratings.length;
+        } else { book.averageRating = 0}
+            
+        //sauvregarde dus la BdD
+        return book.save()
+        .then(()=>res.status(200).json({message:'Note enregistrée!'}))
+        .catch(error => res.status(400).json({error}))
+        
+    })
+    .catch(error => res.status(400).json({error}))
 
+};
+
+//recherche de la meilleur note
+exports.findBestRating = (req,res,next)=> {
+    book.find()
+    .then( books => {
+        const bookSorted = books.averageRating.sort();
+        
+        const bestratingBook = bookSorted[0,1,2];
+
+
+    })
+    .catch()
+};
