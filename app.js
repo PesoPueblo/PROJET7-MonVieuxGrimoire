@@ -29,6 +29,6 @@ app.use((req, res, next) => {
   //appel des routes de l'API
 app.use('/api/books', BooksRoutes);
 app.use('/api/auth', UsersRoutes);
-app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/image', express.static(path.join(__dirname, 'image')));
 
 module.exports = app;
