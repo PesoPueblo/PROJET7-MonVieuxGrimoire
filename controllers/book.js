@@ -1,5 +1,4 @@
 //importation du model d'un livre
-const book = require('../models/book');
 const Book = require('../models/book');
 
 //importation du modèle de note
@@ -23,7 +22,7 @@ exports.createNewBook= (req,res,next)=>{
         userId: req.auth.userId,
         imageUrl: `${req.protocol}://${req.get('host')}/image/${req.file.filename}`
     });
-    book.save()
+    Book.save()
     .then(()=> res.status(201).json({message:'livre enregistré'}))
     .catch(error=> res.status(400).json({error}));
 };
@@ -84,9 +83,9 @@ exports.addNewRate = (req,res,next)=>{
         if (book.ratings.length > 0){
             book.averageRating= sumRate / book.ratings.length;
         } else { book.averageRating = 0}
-            
+        console.log(rate._id);
         //sauvregarde dus la BdD
-        return book.save()
+        return Book.save()
         .then(()=>res.status(200).json({message:'Note enregistrée!'}))
         .catch(error => res.status(400).json({error}))
         
@@ -97,13 +96,11 @@ exports.addNewRate = (req,res,next)=>{
 
 //recherche de la meilleur note
 exports.findBestRating = (req,res,next)=> {
-    book.find()
+    Book.find()
     .then( books => {
-        const bookSorted = books.averageRating.sort();
-        
-        const bestratingBook = bookSorted[0,1,2];
-
-
+        const sortedBooks = books.sort((a,b)=> b.averageRating - a.averageRating);
+        const bestratingBooks = sortedBooks.slice(0,3);
+        res.status(200).json(bestratingBooks);
     })
-    .catch()
+    .catch(error=> res.status(400).json({error}))
 };
