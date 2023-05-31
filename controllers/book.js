@@ -1,8 +1,6 @@
 //importation du model d'un livre
 const Book = require('../models/book');
 
-//importation du modèle de note
-const ratings = require ('../models/ratings');
 
 //créationet exportation d'un controlleur pour récupérer tous les livres
 exports.getAllBooks= (req,res,next)=>{
@@ -64,35 +62,30 @@ exports.deleteOneBook= (req,res,next)=>{
 
 //créattion de l'ajout de note
 exports.addNewRate = (req,res,next)=>{
-    //création de la nouvelle note
-    const rate = new ratings ({
-        userId: req.auth.userId,
-        grade: req.body.rating,
-    }); 
     //selectione de l'emplacement ou on rajoute la note 
     Book.findOne({_id: req.params.id})
     .then( book => {
         //ajoute au tableau ratings du livre
-        book.ratings.push(rate);
+        book.ratings.push({
+            userId: req.auth.userId,
+            grade: req.body.rating
+        });
         //update de average note
-        let sumRate =0
+        let sumRate = 0;
         for (let i = 0; i < book.ratings.length; i++) {
             let rate = book.ratings[i].grade;
             sumRate += rate;            
         }
-        if (book.ratings.length > 0){
-            book.averageRating= sumRate / book.ratings.length;
-        } else { book.averageRating = 0}
-        console.log(rate._id);
+        book.averageRating= sumRate / book.ratings.length;
+        console.log(book.averageRating);
         //sauvregarde dus la BdD
-        return Book.save()
-        .then(()=>res.status(200).json({message:'Note enregistrée!'}))
-        .catch(error => res.status(400).json({error}))
-        
+        return book.save();  
     })
-    .catch(error => res.status(400).json({error}))
+    .then(book =>res.status(201).json(book))
+    .catch(error => res.status(500).json({error}))
 
 };
+
 
 //recherche de la meilleur note
 exports.findBestRating = (req,res,next)=> {
