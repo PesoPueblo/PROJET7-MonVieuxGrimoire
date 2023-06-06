@@ -1,5 +1,6 @@
 const multer = require ('multer');
 const sharp= require ('sharp');
+const fs = require ('fs')
 
 //on définis les mimetypes acccepté
 const  MIME_TYPES = {
@@ -14,7 +15,7 @@ const storage = multer.diskStorage({
         callback(null, 'image')
     },
     filename: (req, file , callback) => {
-        const name = file.originalname.split(' ').join('_');
+        const name = file.originalname.split('.jpg').join('_');
         const extension = MIME_TYPES[file.mimetype];
         callback(null, name + Date.now()+ '.'+ extension);
     }
@@ -32,10 +33,14 @@ const reziseImage = (req,res,next)=>{
             .toFile(outputPath, (error, info) => {
                 if (error){
                     res.status(500).json({info})
+                }else {
+                    const odlPath= outputPath.split('-resized').join("");
+                    fs.unlink(odlPath,(err) => {   if (err) {res.status(501).json({err})};   console.log('Fichier supprimé !');});
                 }
-                req.file.path=outputPath;
-                next();
             });
+            req.file.filename= req.file.filename.replace(/\.[^/.]+$/, "") + "-resized.jpg";
+            req.file.path=outputPath;
+            next();
     }
 };
 
