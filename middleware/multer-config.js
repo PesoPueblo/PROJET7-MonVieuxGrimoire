@@ -24,15 +24,18 @@ const upload = multer({storage}).single('image');
 //redimensionner les images
 const reziseImage = (req,res,next)=>{
     if(!req.file) {
-        return next();
+        error=>{res.status(500).json({error:'Aucune image trouvé'})};
     } else {
+        const outputPath = req.file.path.replace(/\.[^/.]+$/, "") + "-resized.jpg";
         sharp(req.file.path)
             .resize(400,500)
-            .toFile(req.file.path, (error, info) => {
+            .toFile(outputPath, (error, info) => {
                 if (error){
-                    res.status(500).json({error})
+                    res.status(500).json({info})
                 }
-            })
+                req.file.path=outputPath;
+                next();
+            });
     }
 };
 
