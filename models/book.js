@@ -5,7 +5,17 @@ const bookSchema = mongoose.Schema({
     title: {type: String, required: true},
     author:{type: String, required: true},
     imageUrl:{type: String, required: true},
-    year:{type: Number, required: true},
+    year:{
+        type: Number, 
+        required: true,
+        validate: { 
+            validator: function (value) {
+                const currentDate = new Date().getFullYear();
+                return value <= currentDate && value > 1700 && value.toString().length === 4;                
+            },
+           message: `L'année de publication doit être inférieur à l'année en cours`
+        }
+    },
     genre:{type: String, required: true},
     ratings: [
         {userId : {type: String, required: false},

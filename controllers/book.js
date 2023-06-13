@@ -75,8 +75,8 @@ exports.addNewRate = (req,res,next)=>{
             let rate = book.ratings[i].grade;
             sumRate += rate;            
         }
-        book.averageRating= sumRate / book.ratings.length;
-        console.log(book.averageRating);
+        book.averageRating= Math.round(sumRate / book.ratings.length);
+        
         //sauvregarde dus la BdD
         return book.save();  
     })
