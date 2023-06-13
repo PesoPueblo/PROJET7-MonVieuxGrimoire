@@ -18,7 +18,7 @@ const userSchema = mongoose.Schema({
         required: true,
         validate:{ 
             validator:  function(value){
-            return /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(!=.*[\$\{\[\=]).{8,}$/.test(value);
+            return /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$/.test(value);
             },
             message: `le mot de passe n'est pas valide, 8 caractères minimun`
         } 
