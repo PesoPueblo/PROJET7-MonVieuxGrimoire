@@ -1,12 +1,13 @@
 const express =require ('express');
 const mongoose = require('mongoose')
-const path = require ('path')
+const path = require ('path');
+require('dotenv').config();
 //importation des différents routes de l'API
 const BooksRoutes = require('./routes/books');
 const UsersRoutes = require('./routes/user');
 
 //mis en connexion avec la bas de donnée MongoDB
-mongoose.connect('mongodb+srv://Gaetan-L:jf91CfXJwn8O897X@cluster0.idrgd4x.mongodb.net/test?retryWrites=true&w=majority',
+mongoose.connect(process.env.MONGODB_PATH,
    {useNewUrlParser: true,
     useUnifiedTopology: true})
     .then(()=>console.log('connection réussi à MongoDB!'))
@@ -18,6 +19,7 @@ app.use(express.json());
 
 //gestion des CORS
 app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', process.env.MONGODB_PATH);
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 
       'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
